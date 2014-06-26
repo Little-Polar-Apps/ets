@@ -2003,16 +2003,9 @@ class _ets
 	}
 
 	/**
-	 * Source read handler for template string
-	 */
-	public function _printts($id)
-	{
-		return $id;
-	}
-	/**
 	 * Return a built template
 	 */
-	public function sprintt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
+	public static function sprintt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
 	{
 		$ets = new _ets($containers, $hsr, $hcr, $hcw);
 		return $ets->build_all($datatree, $entry);
@@ -2020,7 +2013,7 @@ class _ets
 	/**
 	 * Print out a built template
 	 */
-	public function printt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
+	public static function printt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
 	{
 		$ets = new _ets($containers, $hsr, $hcr, $hcw);
 		echo $ets->build_all($datatree, $entry);
@@ -2042,17 +2035,46 @@ class _ets
 	/**
 	 * Return a built template string
 	 */
-	public function sprintts($datatree, $containers, $entry = 'main')
+	public static function sprintts($datatree, $containers, $entry = 'main')
 	{
 		return $this->sprintt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
 	/**
 	 * Print out a built template string
 	 */
-	public function printts($datatree, $containers, $entry = 'main')
+	public static function printts($datatree, $containers, $entry = 'main')
 	{
 		$this->printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
+}
+
+/**
+ * Source read handler for template string
+ */
+function _printts($id)
+{
+	return $id;
+}
+
+// read a source container
+function ets_source_read_handler($id)
+{
+	global $themetemplates;
+	$custom = strpos($id,'@') ? true : false;
+	if($custom){
+		$id = str_replace('@', '', $id);
+	}
+
+	$id = (!empty($themetemplates)) ? "$themetemplates/".basename($id) : $id;
+	$content = FALSE;
+	if ($handle = @fopen("$id", 'rb')) {
+		$size = @filesize("$id");
+		$content = @fread($handle, $size);
+		fclose($handle);
+	}
+	$content = ($custom) ? '{loop:main}'.$content.'{/loop}' : $content;
+
+	return $content;
 }
 
 /**
