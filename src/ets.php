@@ -2053,24 +2053,45 @@ class _ets
 	{
 		$this->printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
+}
 
-	// read a source container
-	public function ets_source_read_handler($id, $themetemplates)
-	{
-		$custom = strpos($id,'@') ? true : false;
-		if($custom){
-			$id = str_replace('@', '', $id);
-		}
-
-		$id = (!empty($themetemplates)) ? "$themetemplates/".basename($id) : $id;
-		$content = FALSE;
-		if ($handle = @fopen("$id", 'rb')) {
-			$size = @filesize("$id");
+/**
+* Read a compiled template and check if its not stale
+* @param string $id
+* @return string $content
+*/
+function ets_cache_read_handler($id) {
+	global $themetemplates;
+	$cachedir = "$themetemplates/cache";
+	$cachefile = $cachedir . '/' . basename($id) . '.cache';
+	if(!file_exists($cachedir) || !is_dir($cachedir) || !is_writable($cachedir)) {
+		return;
+	}
+	$content = false;
+	if(@filemtime($cachefile) > @filemtime("$id")) {
+		if($handle = @fopen($cachefile, 'rb')) {
+			$size = @filesize($cachefile);
 			$content = @fread($handle, $size);
 			fclose($handle);
 		}
-		$content = ($custom) ? '{loop:main}'.$content.'{/loop}' : $content;
+	}
+	return $content;
+}
 
-		return $content;
+/**
+* Write a compiled template
+* @param string $id
+* @param string $content
+*/
+function ets_cache_write_handler($id, $content) {
+	global $themetemplates;
+	$cachedir = "$themetemplates/cache";
+	$cachefile = $cachedir . '/' . basename($id) . '.cache';
+	if(!file_exists($cachedir) || !is_dir($cachedir) || !is_writable($cachedir)) {
+		return;
+	}
+	if($handle = @fopen($cachefile, 'wb')) {
+		@fwrite($handle, $content);
+		fclose($handle);
 	}
 }
