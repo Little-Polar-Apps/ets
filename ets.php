@@ -2001,76 +2001,76 @@ class _ets
 			$this->error(10, 59);
 		}
 	}
-}
-/**
- * Source read handler for template string
- */
-function _printts($id)
-{
-	return $id;
-}
-/**
- * Return a built template
- */
-function sprintt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
-{
-	$ets = new _ets($containers, $hsr, $hcr, $hcw);
-	return $ets->build_all($datatree, $entry);
-}
-/**
- * Print out a built template
- */
-function printt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
-{
-	$ets = new _ets($containers, $hsr, $hcr, $hcw);
-	echo $ets->build_all($datatree, $entry);
-}
-/**
- * Return the same value than missing element in PHP code
- */
-function mis($value)
-{
-	return is_null($value) || $value === '' || $value === FALSE || !is_scalar($value);
-}
-/**
- * Return the same value than set element in PHP code
- */
-function set($value)
-{
-	return !mis($value);
-}
-/**
- * Return a built template string
- */
-function sprintts($datatree, $containers, $entry = 'main')
-{
-	return sprintt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
-}
-/**
- * Print out a built template string
- */
-function printts($datatree, $containers, $entry = 'main')
-{
-	printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
-}
 
-// read a source container
-function ets_source_read_handler($id)
-{
-	global $themetemplates;
-	$custom = strpos($id,'@') ? true : false;
-	if($custom){
-		$id = str_replace('@', '', $id);
+	/**
+	 * Source read handler for template string
+	 */
+	public function _printts($id)
+	{
+		return $id;
+	}
+	/**
+	 * Return a built template
+	 */
+	public function sprintt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
+	{
+		$ets = new _ets($containers, $hsr, $hcr, $hcw);
+		return $ets->build_all($datatree, $entry);
+	}
+	/**
+	 * Print out a built template
+	 */
+	public function printt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
+	{
+		$ets = new _ets($containers, $hsr, $hcr, $hcw);
+		echo $ets->build_all($datatree, $entry);
+	}
+	/**
+	 * Return the same value than missing element in PHP code
+	 */
+	public function mis($value)
+	{
+		return is_null($value) || $value === '' || $value === FALSE || !is_scalar($value);
+	}
+	/**
+	 * Return the same value than set element in PHP code
+	 */
+	public function set($value)
+	{
+		return !$this->mis($value);
+	}
+	/**
+	 * Return a built template string
+	 */
+	public function sprintts($datatree, $containers, $entry = 'main')
+	{
+		return $this->sprintt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
+	}
+	/**
+	 * Print out a built template string
+	 */
+	public function printts($datatree, $containers, $entry = 'main')
+	{
+		$this->printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
 
-	$id = (!empty($themetemplates)) ? "$themetemplates/".basename($id) : $id;
-	$content = FALSE;
-	if ($handle = @fopen("$id", 'rb')) {
-		$size = @filesize("$id");
-		$content = @fread($handle, $size);
-		fclose($handle);
-	}
-	$content = ($custom) ? '{loop:main}'.$content.'{/loop}' : $content;
+	// read a source container
+	public function ets_source_read_handler($id, $themetemplates)
+	{
+		$custom = strpos($id,'@') ? true : false;
+		if($custom){
+			$id = str_replace('@', '', $id);
+		}
 
-	return $content;
+		$id = (!empty($themetemplates)) ? "$themetemplates/".basename($id) : $id;
+		$content = FALSE;
+		if ($handle = @fopen("$id", 'rb')) {
+			$size = @filesize("$id");
+			$content = @fread($handle, $size);
+			fclose($handle);
+		}
+		$content = ($custom) ? '{loop:main}'.$content.'{/loop}' : $content;
+
+		return $content;
+	}
 }
