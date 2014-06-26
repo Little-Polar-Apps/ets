@@ -1,0 +1,7 @@
+{
+    "name": "little-polar-apps/ets",
+    "description": "PHP Easy Template System",
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
