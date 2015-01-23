@@ -27,3 +27,25 @@ Install via Composer
 ```
 php composer.phar install
 ```
+
+Set DEFINED variables
+===
+
+You need to set the 'ets_source_read_handler' locations in order for ETS to know your templates directories, so that you are able to use {include:} and {insert:} correctly from your templates folder.
+
+The function has already been included in ETS, but you will need to set the following defined variable:
+
+```
+define('ETS_TEMPLATESPATH', dirname(__FILE__) . '/templates');
+```
+
+Optionally
+===
+
+In addition to the source read handler two more functions are provided that set cache directory read and write. 
+
+Set the file path as a defined variable 
+
+```
+define('ETS_THEMEFILEPATH', dirname(__FILE__));
+```

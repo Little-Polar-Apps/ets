@@ -2056,10 +2056,15 @@ function _printts($id)
 	return $id;
 }
 
+/*
+ * Make sure these are defined in the GLOBAL definitions
+ * define('TEMPLATESPATH', dirname(__FILE__) . '/templates');
+ * define('THEMEFILEPATH', dirname(__FILE__));
+*/
 // read a source container
 function ets_source_read_handler($id)
 {
-	global $themetemplates;
+	$themetemplates = TEMPLATESPATH;
 	$custom = strpos($id,'@') ? true : false;
 	if($custom){
 		$id = str_replace('@', '', $id);
@@ -2083,7 +2088,7 @@ function ets_source_read_handler($id)
 * @return string $content
 */
 function ets_cache_read_handler($id) {
-	global $themetemplates;
+	$themetemplates = THEMEFILEPATH;
 	$cachedir = "$themetemplates/cache";
 	$cachefile = $cachedir . '/' . basename($id) . '.cache';
 	if(!file_exists($cachedir) || !is_dir($cachedir) || !is_writable($cachedir)) {
@@ -2106,7 +2111,7 @@ function ets_cache_read_handler($id) {
 * @param string $content
 */
 function ets_cache_write_handler($id, $content) {
-	global $themetemplates;
+	$themetemplates = THEMEFILEPATH;
 	$cachedir = "$themetemplates/cache";
 	$cachefile = $cachedir . '/' . basename($id) . '.cache';
 	if(!file_exists($cachedir) || !is_dir($cachedir) || !is_writable($cachedir)) {
