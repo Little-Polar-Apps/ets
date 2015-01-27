@@ -8,5 +8,8 @@
         "psr-0": {
             "_ets": "src/"
         }
+    },
+    "suggest": {
+        "little-polar-apps/ets-view": "View handler to ets"
     }
 }
