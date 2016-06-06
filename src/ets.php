@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ETS - Easy Template System - 3.06a
+ * ETS - Easy Template System - 3.07
  *
  * Originally developed by Franck Marcia adopted by Ian Tearle as
  * template language of choice for Expanse CMS.
@@ -1987,7 +1987,7 @@ class _ets
     /**
      * Contructor: create the template tree
      */
-	function _ets($containers, $hsr, $hcr, $hcw)
+	function __construct($containers, $hsr, $hcr, $hcw)
 	{
 		$this->source_read_name = $hsr;
 		$this->cache_read_name  = $hcr;
