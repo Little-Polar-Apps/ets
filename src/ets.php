@@ -124,7 +124,7 @@ define('_ETS_ENTRY', 'main');
  * Template management class
  * This class is intended to be used by printt functions only
  */
-class _ets
+class ets
 {
 	/**
 	 * Data tree
@@ -243,49 +243,51 @@ class _ets
 	 */
 	function elt_label($eltid)
 	{
-		switch($eltid) {
-			case _ETS_ROOT:         return 'root element';
-			case _ETS_TEXT:         return 'text element';
-			case _ETS_TAG:          return 'simple tag element';
-			case _ETS_ALT_TAG:      return 'alternate tag element';
-			case _ETS_TEMPLATE:     return 'template element';
-			case _ETS_SET:          return 'set element';
-			case _ETS_SETVAL:       return 'set-value element';
-			case _ETS_MIS:          return 'missing element';
-			case _ETS_MISVAL:       return 'missing-value element';
-			case _ETS_PHP:          return 'PHP element';
-			case _ETS_CONST:        return 'constant element';
-			case _ETS_IF:           return 'if element';
-			case _ETS_CODE:         return 'PHP code or test';
-			case _ETS_CHOOSE:       return 'choose element';
-			case _ETS_WHENTEST:     return 'when-test element';
-			case _ETS_ELSE:         return 'else element';
-			case _ETS_CHOOSEVAR:    return 'choose-variable element';
-			case _ETS_WHENVAL:      return 'when-value element';
-			case _ETS_CALL:         return 'call element';
-			case _ETS_ARG:          return 'argument element';
-			case _ETS_MIS_TEMPLATE: return 'missing template element';
-			case _ETS_REDUCE:       return 'reduce element';
-			case _ETS_REPEAT:       return 'repeat element';
-			case _ETS_RSS:			return 'rss element';
-			case _ETS_INCLUDE:      return 'include element';
-			case _ETS_INSERT:       return 'insert element';
-			case _ETS_EVAL:         return 'eval element';
-			case _ETS_SAFE:         return 'safe eval element';
-			case _ETS_ROOT_EVAL:    return 'eval or safe element';
-			case _ETS_PLACE:    	return 'place element';
-		}
-	}
+        return match ($eltid) {
+            _ETS_ROOT => 'root element',
+            _ETS_TEXT => 'text element',
+            _ETS_TAG => 'simple tag element',
+            _ETS_ALT_TAG => 'alternate tag element',
+            _ETS_TEMPLATE => 'template element',
+            _ETS_SET => 'set element',
+            _ETS_SETVAL => 'set-value element',
+            _ETS_MIS => 'missing element',
+            _ETS_MISVAL => 'missing-value element',
+            _ETS_PHP => 'PHP element',
+            _ETS_CONST => 'constant element',
+            _ETS_IF => 'if element',
+            _ETS_CODE => 'PHP code or test',
+            _ETS_CHOOSE => 'choose element',
+            _ETS_WHENTEST => 'when-test element',
+            _ETS_ELSE => 'else element',
+            _ETS_CHOOSEVAR => 'choose-variable element',
+            _ETS_WHENVAL => 'when-value element',
+            _ETS_CALL => 'call element',
+            _ETS_ARG => 'argument element',
+            _ETS_MIS_TEMPLATE => 'missing template element',
+            _ETS_REDUCE => 'reduce element',
+            _ETS_REPEAT => 'repeat element',
+            _ETS_RSS => 'rss element',
+            _ETS_INCLUDE => 'include element',
+            _ETS_INSERT => 'insert element',
+            _ETS_EVAL => 'eval element',
+            _ETS_SAFE => 'safe eval element',
+            _ETS_ROOT_EVAL => 'eval or safe element',
+            _ETS_PLACE => 'place element',
+            default => $eltid,
+        };
+    }
 	/**
 	 * Define the label of a parsing mode from an id
 	 */
-	function mode_label($modeid)
-	{
-		switch($modeid) {
-			case _ETS_COMMENT:      return 'comment';
-			case _ETS_CDATA:        return 'cdata';
-		}
-	}
+	public function mode_label($modeid): string
+    {
+        return match ($modeid) {
+            _ETS_COMMENT => 'comment',
+            _ETS_CDATA => 'cdata',
+            default => $modeid,
+        };
+    }
 
 	/*****   P A R S I N G   *****/
     /**
@@ -331,7 +333,7 @@ class _ets
 	function store_node(&$elts, $ptype, &$i, &$line, $cname, $cvalue, $ncontent, $content, $code = FALSE)
 	{
 		$isabsolute = FALSE;
-		if ($cname{0} == '/' && $cname{1} == '/') {
+		if ($cname[0] === '/' && $cname[1] === '/') {
 			$isabsolute = TRUE;
 			$cname = substr($cname, 2);
 		}
@@ -367,7 +369,7 @@ class _ets
 	function store_leaf(&$elts, $ptype, &$i, $cname, $cvalue = NULL)
 	{
 		$isabsolute = FALSE;
-		if ($cname{0} == '/' && $cname{1} == '/') {
+		if ($cname[0] === '/' && $cname[1] === '/') {
 			$isabsolute = TRUE;
 			$cname = substr($cname, 2);
 		}
@@ -398,12 +400,14 @@ class _ets
 	function is_space($char)
 	{
 		$asc = ord($char);
-		if ($asc == 32) {
-			return TRUE;
-		} elseif ($asc > 8 && $asc < 14) {
-			return TRUE;
-		}
-		return FALSE;
+        if ($asc == 32) {
+            return TRUE;
+        }
+
+        if ($asc > 8 && $asc < 14) {
+            return TRUE;
+        }
+        return FALSE;
 	}
     /**
      * Recursively parse template
@@ -423,8 +427,8 @@ class _ets
 				return array();
 			}
 			// current character and following
-			$c0 = $content{$i};
-			$c1 = $content{$i + 1};
+			$c0 = $content[$i];
+			$c1 = $content[$i + 1];
 			$is_space0 = $this->is_space($c0);
 			$a0 = ord($c0);
 			// line count
@@ -434,15 +438,15 @@ class _ets
 			// data acquisition
 			if ($mode == _ETS_DATA) {
 				// tag?
-				if ($c0 == '{') {
-					$c2 = $content{$i + 2};
-					$c3 = $content{$i + 3};
-					$c4 = $content{$i + 4};
-					$c5 = $content{$i + 5};
-					$c6 = $content{$i + 6};
-					$c7 = $content{$i + 7};
+				if ($c0 === '{') {
+					$c2 = $content[$i + 2];
+					$c3 = $content[$i + 3];
+					$c4 = $content[$i + 4];
+					$c5 = $content[$i + 5];
+					$c6 = $content[$i + 6];
+					$c7 = $content[$i + 7];
 					// {* (comment)
-					if ($c1 == '*') {
+					if ($c1 === '*') {
 						if ($ptype & _ETS_CODEs) {
 							$this->error(0, 1, 'comment', $line, $ptype);
 							$this->skip = TRUE;
@@ -457,7 +461,7 @@ class _ets
 						++$nspecial;
 						$saveline = $line;
 					// {# (cdata)
-					} elseif ($c1 == '#') {
+					} elseif ($c1 === '#') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 2, 'cdata', $line, $ptype);
 							$this->skip = TRUE;
@@ -472,7 +476,7 @@ class _ets
 						++$nspecial;
 						$saveline = $line;
 					// {loop:   (formerly "{mask:")
-					} elseif ($c1 == 'l' && $c2 == 'o' && $c3 == 'o' && $c4 == 'p' && $c5 == ':') {
+					} elseif ($c1 === 'l' && $c2 === 'o' && $c3 === 'o' && $c4 === 'p' && $c5 === ':') {
 						if ($ptype & _ETS_GROUP2) {
 							$this->error(0, 3, 'template element', $line, $ptype);
 							$this->skip = TRUE;
@@ -485,7 +489,7 @@ class _ets
 						$nametype = _ETS_TEMPLATE;
 						$i += 5;
 					// {mask:
-					} elseif ($c1 == 'm' && $c2 == 'a' && $c3 == 's' && $c4 == 'k' && $c5 == ':') {
+					} elseif ($c1 === 'm' && $c2 === 'a' && $c3 === 's' && $c4 === 'k' && $c5 === ':') {
 						if ($ptype & _ETS_GROUP2) {
 							$this->error(0, 3, 'template element', $line, $ptype);
 							$this->skip = TRUE;
@@ -498,7 +502,7 @@ class _ets
 						$nametype = _ETS_TEMPLATE;
 						$i += 5;
 					// {call:
-					} elseif ($c1 == 'c' && $c2 == 'a' && $c3 == 'l' && $c4 == 'l' && $c5 == ':') {
+					} elseif ($c1 === 'c' && $c2 === 'a' && $c3 === 'l' && $c4 === 'l' && $c5 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 4, 'call element', $line, $ptype);
 							$this->skip = TRUE;
@@ -514,7 +518,7 @@ class _ets
 						$elts[$index]['template'] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						$elts[$index]['args'] = $this->parse(_ETS_CALL, $i, $line, $ncontent, $content);
 					// {const:
-					} elseif ($c1 == 'c' && $c2 == 'o' && $c3 == 'n' && $c4 == 's' && $c5 == 't' && $c6 == ':') {
+					} elseif ($c1 === 'c' && $c2 === 'o' && $c3 === 'n' && $c4 === 's' && $c5 === 't' && $c6 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 5, 'constant element', $line, $ptype);
 							$this->skip = TRUE;
@@ -529,7 +533,7 @@ class _ets
 						$elts[_ETS_CONST . ':' . $i] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						--$i;
 					// {set:
-					} elseif ($c1 == 's' && $c2 == 'e' && $c3 == 't' && $c4 == ':') {
+					} elseif ($c1 === 's' && $c2 === 'e' && $c3 === 't' && $c4 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 6, 'set element', $line, $ptype);
 							$this->skip = TRUE;
@@ -542,7 +546,7 @@ class _ets
 						$nametype = _ETS_SET;
 						$i += 4;
 					// {mis:
-					} elseif ($c1 == 'm' && $c2 == 'i' && $c3 == 's' && $c4 == ':') {
+					} elseif ($c1 === 'm' && $c2 === 'i' && $c3 === 's' && $c4 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 7, 'missing element', $line, $ptype);
 							$this->skip = TRUE;
@@ -555,7 +559,7 @@ class _ets
 						$nametype = _ETS_MIS;
 						$i += 4;
 					// {choose:
-					} elseif ($c1 == 'c' && $c2 == 'h' && $c3 == 'o' && $c4 == 'o' && $c5 == 's' && $c6 == 'e' && $c7 == ':') {
+					} elseif ($c1 === 'c' && $c2 === 'h' && $c3 === 'o' && $c4 === 'o' && $c5 === 's' && $c6 === 'e' && $c7 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 8, 'choose element', $line, $ptype);
 							$this->skip = TRUE;
@@ -568,7 +572,7 @@ class _ets
 						$nametype = _ETS_CHOOSEVAR;
 						$i += 7;
 					// {arg:
-					} elseif ($c1 == 'a' && $c2 == 'r' && $c3 == 'g' && $c4 == ':') {
+					} elseif ($c1 === 'a' && $c2 === 'r' && $c3 === 'g' && $c4 === ':') {
 						if ($ptype == _ETS_CALL) {
 							$mode = _ETS_NAME;
 							$ntext = $nname = $nvalue = $nspace = 0;
@@ -581,7 +585,7 @@ class _ets
 							return array();
 						}
 					// {reduce:
-					} elseif ($c1 == 'r' && $c2 == 'e' && $c3 == 'd' && $c4 == 'u' && $c5 == 'c' && $c6 == 'e' && $c7 == ':') {
+					} elseif ($c1 === 'r' && $c2 === 'e' && $c3 === 'd' && $c4 === 'u' && $c5 === 'c' && $c6 === 'e' && $c7 === ':') {
 						if ($ptype == _ETS_ROOT) {
 							if (!isset($elts['0reduce']) || $elts['0reduce'] == _ETS_REDUCE_NULL) {
 								$mode = _ETS_NAME;
@@ -598,7 +602,7 @@ class _ets
 							return array();
 						}
 					// {include:
-					} elseif ($c1 == 'i' && $c2 == 'n' && $c3 == 'c' && $c4 == 'l' && $c5 == 'u' && $c6 == 'd' && $c7 == 'e' && $content{$i + 8} == ':') {
+					} elseif ($c1 === 'i' && $c2 === 'n' && $c3 === 'c' && $c4 === 'l' && $c5 === 'u' && $c6 === 'd' && $c7 === 'e' && $content[$i + 8] === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 15, 'include element', $line, $ptype);
 							$this->skip = TRUE;
@@ -613,7 +617,7 @@ class _ets
 						$elts[_ETS_INCLUDE . ':' . $i] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						--$i;
 					// {insert:
-					} elseif ($c1 == 'i' && $c2 == 'n' && $c3 == 's' && $c4 == 'e' && $c5 == 'r' && $c6 == 't' && $c7 == ':') {
+					} elseif ($c1 === 'i' && $c2 === 'n' && $c3 === 's' && $c4 === 'e' && $c5 === 'r' && $c6 === 't' && $c7 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 14, 'insert element', $line, $ptype);
 							$this->skip = TRUE;
@@ -628,7 +632,7 @@ class _ets
 						$elts[_ETS_INSERT . ':' . $i] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						--$i;
 					// {eval:
-					} elseif ($c1 == 'e' && $c2 == 'v' && $c3 == 'a' && $c4 == 'l' && $c5 == ':') {
+					} elseif ($c1 === 'e' && $c2 === 'v' && $c3 === 'a' && $c4 === 'l' && $c5 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 15, 'eval element', $line, $ptype);
 							$this->skip = TRUE;
@@ -643,7 +647,7 @@ class _ets
 						$elts[_ETS_EVAL . ':' . $i] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						--$i;
 					// {safe:
-					} elseif ($c1 == 's' && $c2 == 'a' && $c3 == 'f' && $c4 == 'e' && $c5 == ':') {
+					} elseif ($c1 === 's' && $c2 === 'a' && $c3 === 'f' && $c4 === 'e' && $c5 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 16, 'safe eval element', $line, $ptype);
 							$this->skip = TRUE;
@@ -658,7 +662,7 @@ class _ets
 						$elts[_ETS_SAFE . ':' . $i] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						--$i;
 					// {when:
-					} elseif ($c1 == 'w' && $c2 == 'h' && $c3 == 'e' && $c4 == 'n' && $c5 == ':') {
+					} elseif ($c1 === 'w' && $c2 === 'h' && $c3 === 'e' && $c4 === 'n' && $c5 === ':') {
 						// of of whentest
 						if ($ptype == _ETS_CHOOSE) {
 							$mode = _ETS_DATA;
@@ -687,7 +691,7 @@ class _ets
 							return array();
 						}
 					// {if:
-					} elseif ($c1 == 'i' && $c2 == 'f' && $c3 == ':') {
+					} elseif ($c1 === 'i' && $c2 === 'f' && $c3 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 18, 'if element', $line, $ptype);
 							$this->skip = TRUE;
@@ -703,7 +707,7 @@ class _ets
 						$elts[$index]['test'] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						$elts[$index]['true'] = $this->parse(_ETS_IF, $i, $line, $ncontent, $content);
 					// {repeat:
-					} elseif ($c1 == 'r' && $c2 == 'e' && $c3 == 'p' && $c4 == 'e' && $c5 == 'a' && $c6 == 't' && $c7 == ':') {
+					} elseif ($c1 === 'r' && $c2 === 'e' && $c3 === 'p' && $c4 === 'e' && $c5 === 'a' && $c6 === 't' && $c7 === ':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 19, 'repeat element', $line, $ptype);
 							$this->skip = TRUE;
@@ -719,7 +723,7 @@ class _ets
 						$elts[$index]['loops'] = $this->parse(_ETS_CODE, $i, $line, $ncontent, $content);
 						$elts[$index]['repeated'] = $this->parse(_ETS_REPEAT, $i, $line, $ncontent, $content);
 					// {rss:
-					} elseif ($c1 =='r' && $c2 =='s' && $c3=='s' && $c4==':') {
+					} elseif ($c1 ==='r' && $c2 ==='s' && $c3==='s' && $c4===':') {
 						if ($ptype & _ETS_GROUP1) {
 							$this->error(0, 19, 'rss element', $line, $ptype);
 							$this->skip = TRUE;
@@ -732,7 +736,7 @@ class _ets
 						$nametype = _ETS_RSS;
 						$i += 4;
 					// simple tag with absolute path
-					} elseif ($c1 == '/' && $c2 == '/') {
+					} elseif ($c1 === '/' && $c2 === '/') {
 						if ($ptype & _ETS_GROUP3) {
 							$this->error(0, 20, 'simple tag element with absolute path', $line, $ptype);
 							$this->skip = TRUE;
@@ -746,9 +750,9 @@ class _ets
 						$nametype = _ETS_TAG;
 						$i += 2;
 					// other simple tag
-					} elseif ($c1 != '/' && !$this->is_space($c1)) {
+					} elseif ($c1 !== '/' && !$this->is_space($c1)) {
 						// {else
-						if ($c1 == 'e' && $c2 == 'l' && $c3 == 's' && $c4 == 'e' && ($this->is_space($c5) || $c5 == '}' )) {
+						if ($c1 === 'e' && $c2 === 'l' && $c3 === 's' && $c4 === 'e' && ($this->is_space($c5) || $c5 === '}' )) {
 							if ($ptype & _ETS_CHOOSEs) {
 								$mode = _ETS_NAME;
 								$ntext = $nvalue = $nspace = 0;
@@ -775,7 +779,7 @@ class _ets
 							$nametype = _ETS_TAG;
 						}
 					// {/loop     (formerly "{/mask")
-					} elseif ($c1 == '/' && $c2 == 'l' && $c3 == 'o' && $c4 == 'o' && $c5 == 'p') {
+					} elseif ($c1 === '/' && $c2 === 'l' && $c3 === 'o' && $c4 === 'o' && $c5 === 'p') {
 						if ($ptype == _ETS_TEMPLATE) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -789,7 +793,7 @@ class _ets
 							return array();
 						}
 					// {/mask
-					} elseif ($c1 == '/' && $c2 == 'm' && $c3 == 'a' && $c4 == 's' && $c5 == 'k') {
+					} elseif ($c1 === '/' && $c2 === 'm' && $c3 === 'a' && $c4 === 's' && $c5 === 'k') {
 						if ($ptype == _ETS_TEMPLATE) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -803,7 +807,7 @@ class _ets
 							return array();
 						}
 					// {/set
-					} elseif ($c1 == '/' && $c2 == 's' && $c3 == 'e' && $c4 == 't') {
+					} elseif ($c1 === '/' && $c2 === 's' && $c3 === 'e' && $c4 === 't') {
 						if ($ptype & _ETS_SETs) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -817,7 +821,7 @@ class _ets
 							return array();
 						}
 					// {/mis
-					} elseif ($c1 == '/' && $c2 == 'm' && $c3 == 'i' && $c4 == 's') {
+					} elseif ($c1 === '/' && $c2 === 'm' && $c3 === 'i' && $c4 === 's') {
 						if ($ptype & _ETS_MISs) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -831,7 +835,7 @@ class _ets
 							return array();
 						}
 					// {/php
-					} elseif ($c1 == '/' && $c2 == 'p' && $c3 == 'h' && $c4 == 'p') {
+					} elseif ($c1 === '/' && $c2 === 'p' && $c3 === 'h' && $c4 === 'p') {
 						if ($ptype == _ETS_PHP) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -845,7 +849,7 @@ class _ets
 							return array();
 						}
 					// {/if
-					} elseif ($c1 == '/' && $c2 == 'i' && $c3 == 'f') {
+					} elseif ($c1 === '/' && $c2 === 'i' && $c3 === 'f') {
 						if ($ptype == _ETS_IF) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -859,7 +863,7 @@ class _ets
 							return array();
 						}
 					// {/choose
-					} elseif ($c1 == '/' && $c2 == 'c' && $c3 == 'h' && $c4 == 'o' && $c5 == 'o' && $c6 == 's' && $c7 == 'e') {
+					} elseif ($c1 === '/' && $c2 === 'c' && $c3 === 'h' && $c4 === 'o' && $c5 === 'o' && $c6 === 's' && $c7 === 'e') {
 						if ($ptype & _ETS_CHOOSEs) {
 							$mode = _ETS_CLOSING_TAG;
 							$ntext = $nname = $nvalue = $nspace = 0;
@@ -872,7 +876,7 @@ class _ets
 							return array();
 						}
 					// {/call
-					} elseif ($c1 == '/' && $c2 == 'c' && $c3 == 'a' && $c4 == 'l' && $c5 == 'l') {
+					} elseif ($c1 === '/' && $c2 === 'c' && $c3 === 'a' && $c4 === 'l' && $c5 === 'l') {
 						if ($ptype == _ETS_CALL) {
 							$mode = _ETS_CLOSING_TAG;
 							$ntext = $nname = $nvalue = $nspace = 0;
@@ -885,7 +889,7 @@ class _ets
 							return array();
 						}
 					// {/arg
-					} elseif ($c1 == '/' && $c2 == 'a' && $c3 == 'r' && $c4 == 'g') {
+					} elseif ($c1 === '/' && $c2 === 'a' && $c3 === 'r' && $c4 === 'g') {
 						if ($ptype == _ETS_ARG) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -899,7 +903,7 @@ class _ets
 							return array();
 						}
 					// {/when
-					} elseif ($c1 == '/' && $c2 == 'w' && $c3 == 'h' && $c4 == 'e' && $c5 == 'n') {
+					} elseif ($c1 === '/' && $c2 === 'w' && $c3 === 'h' && $c4 === 'e' && $c5 === 'n') {
 						// of when val
 						if ($ptype == _ETS_WHENVAL) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
@@ -922,7 +926,7 @@ class _ets
 							return array();
 						}
 					// {/else
-					} elseif ($c1 == '/' && $c2 == 'e' && $c3 == 'l' && $c4 == 's' && $c5 == 'e') {
+					} elseif ($c1 === '/' && $c2 === 'e' && $c3 === 'l' && $c4 === 's' && $c5 === 'e') {
 						if ($ptype == _ETS_ELSE) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -936,7 +940,7 @@ class _ets
 							return array();
 						}
 					// {/repeat
-					} elseif ($c1 == '/' && $c2 == 'r' && $c3 == 'e' && $c4 == 'p' && $c5 == 'e' && $c6 == 'a' && $c7 == 't') {
+					} elseif ($c1 === '/' && $c2 === 'r' && $c3 === 'e' && $c4 === 'p' && $c5 === 'e' && $c6 === 'a' && $c7 === 't') {
 						if ($ptype == _ETS_REPEAT) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -950,7 +954,7 @@ class _ets
 							return array();
 						}
 					// {/rss
-					} elseif ($c1 == '/' && $c2 =='r' && $c3 == 's' && $c4 == 's') {
+					} elseif ($c1 === '/' && $c2 ==='r' && $c3 === 's' && $c4 === 's') {
 						if ($ptype == _ETS_RSS) {
 							$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 							$mode = _ETS_CLOSING_TAG;
@@ -964,7 +968,7 @@ class _ets
 							return array();
 						}
 					// {/ (simplified closing tag)
-					} elseif ($c1 == '/' && ($c2 == '}' || $this->is_space($c2))) {
+					} elseif ($c1 === '/' && ($c2 === '}' || $this->is_space($c2))) {
 						if ($ptype != _ETS_ROOT) {
 							if (!($ptype & _ETS_GROUP4)) {
 								$this->store_text($elts, $i, $ptype, $ntext, $ctext);
@@ -985,12 +989,12 @@ class _ets
 						$ntext = 1;
 					}
 				// end of code element
-				} elseif ($c0 == '}' && $ptype == _ETS_CODE) {
+				} elseif ($c0 === '}' && $ptype == _ETS_CODE) {
 					$this->store_text($elts, $i, $ptype, $ntext, $ctext);
 					++$i;
 					return $elts;
 				// escape } with \} in code acquisition
-				} elseif ($c0 == '\\' && $c1 == '}' && $ptype == _ETS_CODE) {
+				} elseif ($c0 === '\\' && $c1 === '}' && $ptype == _ETS_CODE) {
 					$ctext .= '}';
 					$ntext = 1;
 					++$i;
@@ -1017,7 +1021,7 @@ class _ets
 			// name acquisition
 			} elseif ($mode == _ETS_NAME) {
 				// end of name acquisition
-				if ($c0 == '}' && $nname == 1) {
+				if ($c0 === '}' && $nname == 1) {
 					// reduce
 					if ($nametype == _ETS_REDUCE) {
 						if (!isset($elts['0reduce']) || $elts['0reduce'] == _ETS_REDUCE_NULL) {
@@ -1048,24 +1052,24 @@ class _ets
 					// tag?
 					} elseif ($nametype == _ETS_TAG) {
 						// php
-						if ($cname == 'php') {
+						if ($cname === 'php') {
 							++$i;
 							$elts[_ETS_PHP . ':' . $i] = $this->parse(_ETS_PHP, $i, $line, $ncontent, $content);
 						// choose
-						} elseif ($cname == 'choose') {
+						} elseif ($cname === 'choose') {
 							++$i;
 							$elts[_ETS_CHOOSE . ':' . $i] = $this->parse(_ETS_CHOOSE, $i, $line, $ncontent, $content);
 						// else
-						} elseif (($ptype == _ETS_CHOOSE || $ptype == _ETS_CHOOSEVAR) && $cname == 'else') {
+						} elseif (($ptype == _ETS_CHOOSE || $ptype == _ETS_CHOOSEVAR) && $cname === 'else') {
 							if (isset($elts['else'])) {
 								$this->error(2, 40, 'else element already exists in ' . $this->elt_label($ptype), $line);
 								$this->skip = TRUE;
 								return array();
-							} else {
-								++$i;
-								$elts['else'] = $this->parse(_ETS_ELSE, $i, $line, $ncontent, $content);
 							}
-						// tag!
+
+                            ++$i;
+                            $elts['else'] = $this->parse(_ETS_ELSE, $i, $line, $ncontent, $content);
+                            // tag!
 						} else {
 							$this->store_leaf($elts, _ETS_TAG, $i, $cname);
 						}
@@ -1089,7 +1093,7 @@ class _ets
 						return array();
 					}
 				// start of value acquisition
-				} elseif ($c0 == ':' && $nname == 1 && ($nametype == _ETS_SET || $nametype == _ETS_MIS)) {
+				} elseif ($c0 === ':' && $nname == 1 && ($nametype == _ETS_SET || $nametype == _ETS_MIS)) {
 					$cvalue = '';
 					$nvalue = 0;
 					$nspace = 0;
@@ -1100,7 +1104,7 @@ class _ets
 						default:	$quotetype = 0;       break;
 					}
 				// start of second name acquisition
-				} elseif ($c0 == ':' && $nametype == _ETS_TAG && $nname == 1 && $nvalue == 0) {
+				} elseif ($c0 === ':' && $nametype == _ETS_TAG && $nname == 1 && $nvalue == 0) {
 					++$i;
 					$this->store_node($elts, _ETS_ALT_TAG, $i, $line, $cname, $cvalue, $ncontent, $content, TRUE);
 					--$i;
@@ -1114,11 +1118,11 @@ class _ets
 					$this->skip = TRUE;
 					return array();
 				// name acquisition
-				} elseif (($nname == 0 && preg_match('/[a-zA-Z_\.\x7f-\xff]/', $c0)) || ($nname == 1 && preg_match('/[\[\]\'\/a-zA-Z0-9_\.\x7f-\xff]/', $c0))) {
+				} elseif (($nname == 0 && preg_match('/[a-zA-Z_\x7f-\xff]/', $c0)) || ($nname == 1 && preg_match('/[\[\]\'\/a-zA-Z0-9_\x7f-\xff]/', $c0))) {
 					$cname .= $c0;
 					$nname = 1;
 				// absolute path at the beginning of name acquisition
-				} elseif ($c0 == '/' && $c1 == '/' && $nname == 0) {
+				} elseif ($c0 === '/' && $c1 === '/' && $nname == 0) {
 					$cname = '//';
 					++$i;
 				// error in name acquisition
@@ -1129,18 +1133,20 @@ class _ets
 				}
 			// end of closing tag
 			} elseif ($mode == _ETS_CLOSING_TAG) {
-				if ($c0 == '}') {
-					$this->store_text($elts, $i, $ptype, $ntext, $ctext);
-					return $elts;
-				} elseif (!$is_space0) {
-					$this->error(2, 44, "unexpected character '$c0' in closing tag", $line);
-					$this->skip = TRUE;
-					return array();
-				}
-			// value acquisition
+                if ($c0 === '}') {
+                    $this->store_text($elts, $i, $ptype, $ntext, $ctext);
+                    return $elts;
+                }
+
+                if (!$is_space0) {
+                    $this->error(2, 44, "unexpected character '$c0' in closing tag", $line);
+                    $this->skip = TRUE;
+                    return array();
+                }
+                // value acquisition
 			} elseif ($mode == _ETS_VALUE) {
 				// end of value acquisition
-				if ($c0 == '}' && $nvalue == 1 && ($quotetype == 0 || $nspace == 1 || $nspace == 2)) {
+				if ($c0 === '}' && $nvalue == 1 && ($quotetype == 0 || $nspace == 1 || $nspace == 2)) {
 					if ($nametype == _ETS_SET) {
 						++$i;
 						$this->store_node($elts, _ETS_SETVAL, $i, $line, $cname, $cvalue, $ncontent, $content);
@@ -1153,10 +1159,10 @@ class _ets
 					}
 					$mode = _ETS_DATA;
 				// no more character after space for single quoted string
-				} elseif ($c0 == '\'' && $quotetype == 1 && $nspace == 0) {
+				} elseif ($c0 === '\'' && $quotetype == 1 && $nspace == 0) {
 					$nspace = 2;
 				// no more character after space for double quoted string
-				} elseif ($c0 == '"' && $quotetype == 2 && $nspace == 0) {
+				} elseif ($c0 === '"' && $quotetype == 2 && $nspace == 0) {
 					$nspace = 2;
 				// space in value acquisition
 				} elseif ($is_space0) {
@@ -1164,30 +1170,29 @@ class _ets
 						$this->error(2, 45, "unexpected space at the beginning of a value", $line);
 						$this->skip = TRUE;
 						return array();
-					} else { // value found or with quotes
-						if ($quotetype == 0) { // no quote
-							$nspace = 1;
-						} else { // with quotes
-							if ($nspace == 2) { // after quotes
-								$nspace = 1;
-							} else {			// in quotes
-								$cvalue .= $c0;
-								$nvalue = 1;
-							}
-						}
 					}
-				// escape } with \} in value acquisition without quote
-				} elseif ($c0 == '\\' && $c1 == '}' && $nspace == 0) {
+
+// value found or with quotes
+                    if ($quotetype == 0) { // no quote
+                        $nspace = 1;
+                    } else if ($nspace == 2) { // after quotes
+                        $nspace = 1;
+                    } else {			// in quotes
+                        $cvalue .= $c0;
+                        $nvalue = 1;
+                    }
+                    // escape } with \} in value acquisition without quote
+				} elseif ($c0 === '\\' && $c1 === '}' && $nspace == 0) {
 					$cvalue .= '}';
 					$nvalue = 1;
 					++$i;
 				// espace ' with \' in value acquisition for single quoted string
-				} elseif ($c0 == '\\' && $c1 == '\'' && $quotetype == 1 && $nspace == 0) {
+				} elseif ($c0 === '\\' && $c1 === '\'' && $quotetype == 1 && $nspace == 0) {
 					$cvalue .= '\'';
 					$nvalue = 1;
 					++$i;
 				// espace " with \" in value acquisition for single quoted string
-				} elseif ($c0 == '\\' && $c1 == '"' && $quotetype == 2 && $nspace == 0) {
+				} elseif ($c0 === '\\' && $c1 === '"' && $quotetype == 2 && $nspace == 0) {
 					$cvalue .= '"';
 					$nvalue = 1;
 					++$i;
@@ -1204,11 +1209,11 @@ class _ets
 			// comment
 			} elseif ($mode == _ETS_COMMENT) {
 				// nested
-				if ($c0 == '{' && $c1 == '*') {
+				if ($c0 === '{' && $c1 === '*') {
 					++$i;
 					++$nspecial;
 				// end
-				} elseif ($c0 == '*' && $c1 == '}') {
+				} elseif ($c0 === '*' && $c1 === '}') {
 					++$i;
 					--$nspecial;
 					// last end
@@ -1219,11 +1224,11 @@ class _ets
 			// cdata
 			} elseif ($mode == _ETS_CDATA) {
 				// nested
-				if ($c0 == '{' && $c1 == '#') {
+				if ($c0 === '{' && $c1 === '#') {
 					++$i;
 					++$nspecial;
 				// end
-				} elseif ($c0 == '#' && $c1 == '}') {
+				} elseif ($c0 === '#' && $c1 === '}') {
 					++$i;
 					--$nspecial;
 					// last end
@@ -1232,13 +1237,13 @@ class _ets
 					}
 				// text acquisition
 				} else {
-					switch ($c0) {
-						case "\n": $ctext .= "\1n\1"; break;
-						case "\r": $ctext .= "\1r\1"; break;
-						case "\t": $ctext .= "\1t\1"; break;
-						case " " : $ctext .= "\1s\1"; break;
-						default  : $ctext .= $c0; break;
-					}
+                    $ctext .= match ($c0) {
+                        "\n" => "\1n\1",
+                        "\r" => "\1r\1",
+                        "\t" => "\1t\1",
+                        " " => "\1s\1",
+                        default => $c0,
+                    };
 					$ntext = 1;
 				}
 			}
@@ -1261,8 +1266,8 @@ class _ets
     /**
      * Merge two template trees
      */
-	function masktree_merge($masktree1, $masktree2, $maskname)
-	{
+	function masktree_merge($masktree1, $masktree2, $maskname): array
+    {
 		$merged = array_merge($masktree1, $masktree2);
 		if (count($merged) < count($masktree1) + count($masktree2)) {
 			$keys1 = array_keys($masktree1);
@@ -1271,9 +1276,9 @@ class _ets
 			$keysc = array_count_values($keysm);
 			foreach ($keysc as $keyn => $keyc) {
 				if ($keyc > 1) {
-					if ($keyn == '0reduce') {
+					if ($keyn === '0reduce') {
 						$this->error(6, 49, 'reduce element already used');
-					} elseif ($keyn != '0include') {
+					} elseif ($keyn !== '0include') {
 						$this->error(16, 60, "template $keyn already defined in <b>$maskname</b>");
 					}
 				}
@@ -1291,16 +1296,16 @@ class _ets
 		if ($this->external_source_read) {
 			$fct = $this->source_read_name;
 			return $fct($this->container);
-		} else {
-			$content = FALSE;
-			if ($handle = @fopen($this->container, 'rb')) {
-				$size = @filesize($this->container);
-				$content = @fread($handle, $size);
-				fclose($handle);
-			}
-			return $content;
 		}
-	}
+
+        $content = FALSE;
+        if ($handle = @fopen($this->container, 'rb')) {
+            $size = @filesize($this->container);
+            $content = @fread($handle, $size);
+            fclose($handle);
+        }
+        return $content;
+    }
     /**
      * Return container content or masktree in container content
      */
@@ -1311,7 +1316,7 @@ class _ets
 		// content must be parsed...
 		if ($parse != _ETS_TEXT) {
 			// null containers are avoid
-			if ($this->container === '' || strtoupper($this->container) == 'NULL') {
+			if ($this->container === '' || strtoupper($this->container) === 'NULL') {
 				return array();
 			}
 			// check if container is already used
@@ -1325,28 +1330,26 @@ class _ets
 			if ($this->external_cache_read && $this->external_cache_write) {
 				// the cache exists and is not obsolete
 				$fct = $this->cache_read_name;
-				if ($envelope = $fct($this->container)) {
-					// the cache is a valid envelope
-					if (isset($envelope) && $envelope{0} == 'E' && $envelope{1} == 'T' && $envelope{2} == 'S' && $envelope{3} == "\1") {
-						$masktree = unserialize(substr($envelope, 4));
-						// the envelope contains valid templates
-						if ($masktree && is_array($masktree)) {
-							$this->containers[$container] = TRUE;
-							// the container calls other containers
-							if (isset($masktree['0include'])) {
-								foreach ($masktree['0include'] as $includedname) {
-									$included = $this->read_container($includedname, _ETS_ROOT);
-									if ($included === FALSE) {
-										$this->error(13, 51, $includedname);
-									} else {
-										$masktree = $this->masktree_merge($masktree, $included, $includedname);
-									}
-								}
-							}
-							return $masktree;
-						}
-					}
-				}
+                // the cache is a valid envelope
+                if (($envelope = $fct($this->container)) && $envelope[0] === 'E' && $envelope[1] === 'T' && $envelope[2] === 'S' && $envelope[3] === "\1") {
+                    $masktree = unserialize(substr($envelope, 4) . $this->cache_read_name, array('allowed_classes' => array('ets_masktree')));
+                    // the envelope contains valid templates
+                    if ($masktree && is_array($masktree)) {
+                        $this->containers[$container] = TRUE;
+                        // the container calls other containers
+                        if (isset($masktree['0include'])) {
+                            foreach ($masktree['0include'] as $includedname) {
+                                $included = $this->read_container($includedname, _ETS_ROOT);
+                                if ($included === FALSE) {
+                                    $this->error(13, 51, $includedname);
+                                } else {
+                                    $masktree = $this->masktree_merge($masktree, $included, $includedname);
+                                }
+                            }
+                        }
+                        return $masktree;
+                    }
+                }
 				// refresh the cache
 				$content = $this->read_content();
 				if ($content === FALSE) {
@@ -1361,30 +1364,30 @@ class _ets
 				$fct($this->container, "ETS\1" . serialize($masktree));
 				return $masktree;
 			// .. or not
-			} else {
-				$content = $this->read_content();
-				if ($content === FALSE) {
-					return FALSE;
-				}
-				$this->containers[$container] = TRUE;
-				$i = 0;
-				$line = 1;
-				return $this->parse(
-					$parse,
-					$i,
-					$line,
-					(string) strlen($content),
-					"$content       ");
 			}
-		// .. or not
-		} else {
-			// null containers are avoid
-			if ($this->container === '' || strtoupper($this->container) == 'NULL') {
-				return '';
-			}
-			return $this->read_content();
+
+            $content = $this->read_content();
+            if ($content === FALSE) {
+                return FALSE;
+            }
+            $this->containers[$container] = TRUE;
+            $i = 0;
+            $line = 1;
+            return $this->parse(
+                $parse,
+                $i,
+                $line,
+                (string) strlen($content),
+                "$content       ");
+            // .. or not
 		}
-	}
+
+// null containers are avoid
+        if ($this->container === '' || strtoupper($this->container) === 'NULL') {
+            return '';
+        }
+        return $this->read_content();
+    }
     /**
      * Read containers then parse their content to build a template tree
      */
@@ -1412,45 +1415,45 @@ class _ets
 	{
 		if (isset($parent->$varname)) {
 			return $parent->$varname;
-		} else {
-			$elements = explode('[', $varname);
-			if (count($elements) == 1) {
-				return NULL;
-			} else {
-				$vartest = $parent;
-				foreach ($elements as $elementid => $element) {
-					if ($elementid == 0) {
-						$vartest = $parent->$element;
-						if (!isset($vartest)) {
-							return NULL;
-						}
-					} else {
-						$index = substr($element, 0, -1);
-						if ($index == '_first') {
-							$keys = array_keys($vartest);
-							$index = $keys[0];
-						} elseif ($index == '_last') {
-							$keys = array_keys($vartest);
-							$index = $keys[count($keys) - 2];
-						}
-						if (!isset($vartest[$index])) {
-							return NULL;
-						} else {
-							$vartest = $vartest[$index];
-						}
-					}
-				}
-			}
-			return $vartest;
 		}
-	}
+
+        $elements = explode('[', $varname);
+        if (count($elements) == 1) {
+            return NULL;
+        }
+
+        $vartest = $parent;
+        foreach ($elements as $elementid => $element) {
+            if ($elementid == 0) {
+                $vartest = $parent->$element;
+                if (!isset($vartest)) {
+                    return NULL;
+                }
+            } else {
+                $index = substr($element, 0, -1);
+                if ($index === '_first') {
+                    $keys = array_keys($vartest);
+                    $index = $keys[0];
+                } elseif ($index === '_last') {
+                    $keys = array_keys($vartest);
+                    $index = $keys[count($keys) - 2];
+                }
+                if (!isset($vartest[$index])) {
+                    return NULL;
+                }
+
+$vartest = $vartest[$index];
+}
+        }
+        return $vartest;
+    }
     /**
      * Define the type of the current data, the direction and parent property
      */
 	function get_datatype($maskname, $carray, $incode, &$cindex, &$ckey, &$clast, &$datatree, &$datatype, &$direction, &$currentdata, $safemode)
 	{
 		// . from root
-		if ($maskname == '//' && !$safemode) {
+		if ($maskname === '//' && !$safemode) {
 			$datatype = _ETS_COMPLEX;
 			$currentdata = $this->datatree;
 			if ($direction == _ETS_FORWARD) {
@@ -1461,7 +1464,7 @@ class _ets
 				}
 			}
 		// . parent
-		} elseif (($maskname == '..' || $maskname == '_parent') && !$safemode) {
+		} elseif (($maskname === '..' || $maskname === '_parent') && !$safemode) {
 			if (is_array($datatree)) {
 				$datatype = _ETS_COMPLEX;
 				$currentdata = $datatree['_parent'];
@@ -1476,11 +1479,11 @@ class _ets
 				$direction = _ETS_FORWARD;
 			}
 		// . first sibling in an array
-		} elseif ($maskname == '_start') {
+		} elseif ($maskname === '_start') {
 			$direction = _ETS_FORWARD;
 			$keys = array_keys($carray);
 			$cindex = 0;
-			if (isset($keys[$cindex]) && isset($carray[$keys[$cindex]])) {
+			if (isset($keys[$cindex], $carray[$keys[$cindex]])) {
 				$ckey = $keys[$cindex];
 				$clast = ($cindex == count($carray) - 2);
 				$currentdata = $carray[$ckey];
@@ -1490,11 +1493,11 @@ class _ets
 				$datatype = _ETS_MISSING;
 			}
 		// . previous sibling in an array
-		} elseif ($maskname == '_previous') {
+		} elseif ($maskname === '_previous') {
 			$direction = _ETS_FORWARD;
 			$keys = array_keys($carray);
 			--$cindex;
-			if (isset($keys[$cindex]) && isset($carray[$keys[$cindex]])) {
+			if (isset($keys[$cindex], $carray[$keys[$cindex]])) {
 				$ckey = $keys[$cindex];
 				$clast = FALSE;
 				$currentdata = $carray[$ckey];
@@ -1504,11 +1507,11 @@ class _ets
 				$datatype = _ETS_MISSING;
 			}
 		// . next sibling in an array
-		} elseif ($maskname == '_next') {
+		} elseif ($maskname === '_next') {
 			$direction = _ETS_FORWARD;
 			$keys = array_keys($carray);
 			++$cindex;
-			if (isset($keys[$cindex]) && isset($carray[$keys[$cindex]]) && $keys[$cindex] != '_parent') {
+			if (isset($keys[$cindex], $carray[$keys[$cindex]]) && $keys[$cindex] !== '_parent') {
 				$ckey = $keys[$cindex];
 				$clast = ($cindex == count($carray) - 2);
 				$currentdata = $carray[$ckey];
@@ -1518,11 +1521,11 @@ class _ets
 				$datatype = _ETS_MISSING;
 			}
 		// . last sibling in an array
-		} elseif ($maskname == '_end') {
+		} elseif ($maskname === '_end') {
 			$direction = _ETS_FORWARD;
 			$keys = array_keys($carray);
 			$cindex = count($keys) - 2;
-			if (isset($keys[$cindex]) && isset($carray[$keys[$cindex]])) {
+			if (isset($keys[$cindex], $carray[$keys[$cindex]])) {
 				$ckey = $keys[$cindex];
 				$clast = TRUE;
 				$currentdata = $carray[$ckey];
@@ -1603,10 +1606,7 @@ class _ets
      */
 	function protect_spaces($data)
 	{
-		$data = str_replace("\n", "\1n\1", $data);
-		$data = str_replace("\r", "\1r\1", $data);
-		$data = str_replace("\t", "\1t\1", $data);
-		return  str_replace(" " , "\1s\1", $data);
+        return str_replace(array("\n", "\r", "\t", " "), array("\1n\1", "\1r\1", "\1t\1", "\1s\1"), $data);
 	}
     /**
      * Recursively match the template tree with the data tree
@@ -1978,16 +1978,12 @@ class _ets
 				$built = preg_replace('/[ \t]*?(\r\n|\r|\n)+[\t ]*/sm', '', $built);
 				break;
 		}
-		$built = str_replace("\1n\1", "\n", $built);
-		$built = str_replace("\1r\1", "\r", $built);
-		$built = str_replace("\1t\1", "\t", $built);
-		$built = str_replace("\1s\1", " ",  $built);
-		return $built;
+        return str_replace(array("\1n\1", "\1r\1", "\1t\1", "\1s\1"), array("\n", "\r", "\t", " "), $built);
 	}
     /**
      * Contructor: create the template tree
      */
-	function __construct($containers, $hsr, $hcr, $hcw)
+	public function __construct($containers, $hsr, $hcr, $hcw)
 	{
 		$this->source_read_name = $hsr;
 		$this->cache_read_name  = $hcr;
@@ -2007,15 +2003,14 @@ class _ets
 	 */
 	public static function sprintt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
 	{
-		$ets = new _ets($containers, $hsr, $hcr, $hcw);
-		return $ets->build_all($datatree, $entry);
+        return (new ets($containers, $hsr, $hcr, $hcw))->build_all($datatree, $entry);
 	}
 	/**
 	 * Print out a built template
 	 */
 	public static function printt($datatree, $containers, $entry = 'main', $hsr = _ETS_SOURCE_READ, $hcr = _ETS_CACHE_READ, $hcw = _ETS_CACHE_WRITE)
 	{
-		$ets = new _ets($containers, $hsr, $hcr, $hcw);
+		$ets = new ets($containers, $hsr, $hcr, $hcw);
 		echo $ets->build_all($datatree, $entry);
 	}
 	/**
@@ -2035,16 +2030,16 @@ class _ets
 	/**
 	 * Return a built template string
 	 */
-	public static function sprintts($datatree, $containers, $entry = 'main')
-	{
-		return $this->sprintt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
+	public static function sprintts($datatree, $containers, $entry = 'main'): array|string
+    {
+		return self::sprintt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
 	/**
 	 * Print out a built template string
 	 */
 	public static function printts($datatree, $containers, $entry = 'main')
 	{
-		$this->printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
+        self::printt($datatree, $containers, $entry, _ETS_STRING_READ, '', '');
 	}
 }
 
@@ -2065,15 +2060,15 @@ function _printts($id)
 function ets_source_read_handler($id)
 {
 	$themetemplates = ETS_TEMPLATESPATH;
-	$custom = strpos($id,'@') ? true : false;
+	$custom = (bool)strpos($id, '@');
 	if($custom){
 		$id = str_replace('@', '', $id);
 	}
 
 	$id = (!empty($themetemplates)) ? "$themetemplates/".basename($id) : $id;
 	$content = FALSE;
-	if ($handle = @fopen("$id", 'rb')) {
-		$size = @filesize("$id");
+	if ($handle = @fopen((string)$id, 'rb')) {
+		$size = @filesize((string)$id);
 		$content = @fread($handle, $size);
 		fclose($handle);
 	}
@@ -2087,15 +2082,16 @@ function ets_source_read_handler($id)
 * @param string $id
 * @return string $content
 */
-function ets_cache_read_handler($id) {
+function ets_cache_read_handler($id): bool|string
+{
 	$themetemplates = ETS_THEMEFILEPATH;
 	$cachedir = "$themetemplates/cache";
 	$cachefile = $cachedir . '/' . basename($id) . '.cache';
 	if(!file_exists($cachedir) || !is_dir($cachedir) || !is_writable($cachedir)) {
-		return;
+		return false;
 	}
 	$content = false;
-	if(@filemtime($cachefile) > @filemtime("$id")) {
+	if(@filemtime($cachefile) > @filemtime((string)$id)) {
 		if($handle = @fopen($cachefile, 'rb')) {
 			$size = @filesize($cachefile);
 			$content = @fread($handle, $size);
@@ -2110,7 +2106,7 @@ function ets_cache_read_handler($id) {
 * @param string $id
 * @param string $content
 */
-function ets_cache_write_handler($id, $content) {
+function ets_cache_write_handler(string $id, string $content) {
 	$themetemplates = ETS_THEMEFILEPATH;
 	$cachedir = "$themetemplates/cache";
 	$cachefile = $cachedir . '/' . basename($id) . '.cache';
